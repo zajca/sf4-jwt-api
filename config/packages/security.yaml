@@ -1,0 +1,39 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+      jwt:
+          id: App\Security\UserJwtProvider
+    role_hierarchy:
+        ROLE_WORKER:       ROLE_USER
+        ROLE_SUPERVISOR:       ROLE_WORKER
+        ROLE_ADMIN:       [ROLE_WORKER,ROLE_USER]
+        ROLE_SUPER_ADMIN:       [ROLE_ADMIN,ROLE_ALLOWED_TO_SWITCH] #top user can switch to other users
+    encoders:
+        App\Entity\User: plaintext
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        login:
+            pattern:  ^/login
+            stateless: true
+            anonymous: true
+            logout:
+              path:   /logout
+              target: /
+            guard:
+                authenticators:
+                    - App\Security\UserFormAuthenticator
+                entry_point: App\Security\UserFormAuthenticator
+        main:
+            anonymous: ~
+            pattern:   ^/api
+            stateless: true
+            guard:
+                authenticators:
+                    - App\Security\JWTTokenAuthenticator
+
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/(_(profiler|wdt)|css|images|js)/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

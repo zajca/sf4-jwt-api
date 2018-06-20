@@ -1,0 +1,12 @@
+parameters:
+    env(AUTH_URL): ''
+
+eight_points_guzzle:
+    clients:
+        auth:
+            base_url: '%env(resolve:AUTH_URL)%'
+            options:
+                timeout: 30
+                headers:
+                    User-Agent: "EightpointsGuzzleBundle/7.0"
+                    Accept: "application/json"
