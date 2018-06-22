@@ -9,6 +9,7 @@ use App\Service\UserAuth;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\InvalidTokenException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -58,8 +59,8 @@ class UserJwtProvider implements UserProviderInterface
                 $this->userAuth->checkToken($token);
                 
                 return $this->userAuth->getUserEntity($token);
-            } catch (BadCredentialsException $exception) {
-                throw $this->createException($token);
+            } catch (InvalidTokenException $exception) {
+                throw new UsernameNotFoundException('Invalid JWT token');
             }
         }
         
@@ -80,12 +81,5 @@ class UserJwtProvider implements UserProviderInterface
     public function supportsClass($class)
     {
         return User::class === $class;
-    }
-    
-    private function createException($username): UsernameNotFoundException
-    {
-        return new UsernameNotFoundException(
-            sprintf('Username "%s" does not exist.', $username)
-        );
     }
 }

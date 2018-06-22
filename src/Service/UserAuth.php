@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\InvalidTokenException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
@@ -48,11 +49,12 @@ class UserAuth
         $response = $this->guzzle->get(
             '/api/token_check',
             [
-                RequestOptions::HEADERS => ['authorization' => 'Bearer ' . $token],
+                RequestOptions::HEADERS     => ['authorization' => 'Bearer ' . $token],
+                RequestOptions::HTTP_ERRORS => false,
             ]
         );
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new BadCredentialsException;
+            throw new InvalidTokenException;
         }
     }
     
@@ -65,6 +67,7 @@ class UserAuth
                     'username' => $credentials['username'],
                     'password' => $credentials['password'],
                 ],
+                RequestOptions::HTTP_ERRORS => false,
             ]
         );
         
