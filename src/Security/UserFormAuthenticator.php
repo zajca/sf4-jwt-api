@@ -6,7 +6,6 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Service\UserAuth;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,24 +22,23 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
  */
 class UserFormAuthenticator extends AbstractGuardAuthenticator
 {
-    
     /**
      * Default message for authentication failure.
      *
      * @var string
      */
     private $failMessage = 'Invalid credentials';
-    
+
     /**
      * @var UserAuth
      */
     private $userAuth;
-    
+
     public function __construct(UserAuth $userAuth)
     {
         $this->userAuth = $userAuth;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -51,22 +49,21 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
             'password' => $request->get('password'),
         ];
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        
         try {
             $token = $this->userAuth->login($credentials);
-    
+
             return $this->userAuth->getUserEntity($token);
         } catch (BadCredentialsException $exception) {
             throw new CustomUserMessageAuthenticationException($this->failMessage);
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -74,7 +71,7 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
     {
         return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -82,10 +79,10 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
     {
         /** @var User $user */
         $user = $token->getUser();
-        
+
         return new JsonResponse(['token' => $user->getToken()]);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -93,7 +90,7 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
     {
         return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -105,7 +102,7 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
             ], Response::HTTP_UNAUTHORIZED
         );
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -113,7 +110,7 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
     {
         return false;
     }
-    
+
     /**
      * @param Request $request
      *
@@ -121,19 +118,20 @@ class UserFormAuthenticator extends AbstractGuardAuthenticator
      */
     protected function getRefererPath(Request $request)
     {
+        /** @var string|null $referer */
         $referer = $request->headers->get('referer');
         if (null === $referer) {
             return '';
         }
-        
+
         return \parse_url($referer, PHP_URL_PATH);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function supports(Request $request)
     {
-        return (null !== $request->get('username') && null !== $request->get('password'));
+        return null !== $request->get('username') && null !== $request->get('password');
     }
 }

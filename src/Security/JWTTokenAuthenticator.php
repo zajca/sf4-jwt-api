@@ -20,48 +20,48 @@ class JWTTokenAuthenticator extends AbstractGuardAuthenticator
      * @var TokenExtractorInterface
      */
     private $tokenExtractor;
-    
+
     public function __construct(
         TokenExtractorInterface $tokenExtractor
     ) {
         $this->tokenExtractor = $tokenExtractor;
     }
-    
+
     public function supports(Request $request)
     {
         return false !== $this->getTokenExtractor()->extract($request);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function getCredentials(Request $request)
     {
         $tokenExtractor = $this->getTokenExtractor();
-        
+
         if (!$tokenExtractor instanceof TokenExtractorInterface) {
             throw new \RuntimeException(
                 sprintf('Method "%s::getTokenExtractor()" must return an instance of "%s".', __CLASS__, TokenExtractorInterface::class)
             );
         }
-        
+
         if (false === ($jsonWebToken = $tokenExtractor->extract($request))) {
             return;
         }
-        
+
         return $jsonWebToken;
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function getUser($jsonWebToken, UserProviderInterface $userProvider)
     {
         $user = $userProvider->loadUserByUsername($jsonWebToken);
-        
+
         return $user;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -69,15 +69,14 @@ class JWTTokenAuthenticator extends AbstractGuardAuthenticator
     {
         return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        return;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -89,7 +88,7 @@ class JWTTokenAuthenticator extends AbstractGuardAuthenticator
             ], Response::HTTP_UNAUTHORIZED
         );
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -97,7 +96,7 @@ class JWTTokenAuthenticator extends AbstractGuardAuthenticator
     {
         return true;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -105,7 +104,7 @@ class JWTTokenAuthenticator extends AbstractGuardAuthenticator
     {
         return false;
     }
-    
+
     /**
      * Gets the token extractor to be used for retrieving a JWT token in the
      * current request.

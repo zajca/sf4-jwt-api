@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Base\Rest\Listener;
-
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,25 +15,24 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class ExceptionListener implements EventSubscriberInterface
 {
-    
     /**
      * @var SerializerInterface
      */
     private $serializer;
-    
+
     /**
      * @var TranslatorInterface
      */
     private $translator;
-    
+
     public function __construct(SerializerInterface $serializer, TranslatorInterface $translator)
     {
         $this->serializer = $serializer;
         $this->translator = $translator;
     }
-    
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -40,10 +40,9 @@ class ExceptionListener implements EventSubscriberInterface
             KernelEvents::EXCEPTION => ['onKernelException'],
         ];
     }
-    
+
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        
         $exception = $event->getException();
         $message = $exception->getMessage();
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
@@ -52,20 +51,19 @@ class ExceptionListener implements EventSubscriberInterface
             $statusCode = $exception->getStatusCode();
             $headers = $exception->getHeaders();
         }
-        
-        if ($message === null || $message === '') {
+
+        if ('' === $message) {
             $message = array_key_exists($statusCode, Response::$statusTexts) ? Response::$statusTexts[$statusCode] : 'error';
         }
-        
+
         $data = [
-            'code'    => $statusCode,
+            'code' => $statusCode,
             'message' => $this->translator->trans($message, [], 'error'),
         ];
-        
+
         $json = $this->serializer->serialize($data, 'json');
         $response = new JsonResponse(null, $statusCode, $headers);
         $response->setJson($json);
         $event->setResponse($response);
     }
 }
-

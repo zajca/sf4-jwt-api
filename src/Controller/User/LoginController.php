@@ -8,7 +8,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class LoginController
 {
-    
     /**
      * @Route("login", name="login")
      *
@@ -21,7 +20,7 @@ final class LoginController
     public function loginAction()
     {
     }
-    
+
     /**
      * @Route("/logout", name="logout")
      * Login handled by Symfony

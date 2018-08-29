@@ -1,0 +1,41 @@
+parameters:
+  use_proxy: '%env(bool:USE_PROXY)%'
+  proxy_server: '%env(resolve:PROXY_SERVER)%'
+  proxy_port: '%env(resolve:PROXY_PORT)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../../src/*'
+    exclude: '../../src/{Entity,Migrations,Tests,Kernel.php}'
+
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  App\Controller\:
+    resource: '../../src/Controller'
+    tags: ['controller.service_arguments']
+
+  App\Base\Rest\Serializer\Normalizer\FormErrorNormalizer:
+    tags:
+    - { name: serializer.normalizer, priority: -10 }
+
+  GuzzleHttp\Client: '@eight_points_guzzle.client.auth'
+
+  App\Base\DirService:
+    autowire: false
+    autoconfigure: false
+    arguments: ['%kernel.root_dir%','%temp_dir%']
+
+
+  App\Base\WebProxy:
+    public: true
+    arguments:
+      $useProxy: '%use_proxy%'
+      $proxyHost: '%proxy_server%'
+      $proxyPort: '%proxy_port%'

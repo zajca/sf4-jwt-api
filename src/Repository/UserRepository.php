@@ -4,9 +4,8 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -17,27 +16,29 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, User::class);
     }
-    
+
     public function findByToken(string $token): ?User
     {
         /** @var QueryBuilder $qb */
         $qb = $this->createQueryBuilder('u');
-        
-        return $qb
+    
+        $qb
             ->andWhere('u.token = :token')
             ->setParameter('token', $token)
             ->andWhere('u.expiresAt > :expires')
             ->setParameter('expires', new \DateTime('now'), Type::DATETIME)
-            ->setMaxResults(1)
+            ->setMaxResults(1);
+
+        return $qb
             ->getQuery()
             ->getOneOrNullResult()
             ;
     }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
@@ -54,7 +55,7 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
     */
-    
+
     /*
     public function findOneBySomeField($value): ?User
     {

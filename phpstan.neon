@@ -1,0 +1,13 @@
+includes:
+	- vendor/phpstan/phpstan-symfony/extension.neon
+#	- vendor/phpstan/phpstan-phpunit/extension.neon
+#	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/phpstan/phpstan-doctrine/extension.neon
+
+parameters:
+	symfony:
+		container_xml_path: %rootDir%/../../../var/cache/dev/srcDevDebugProjectContainer.xml
+	excludes_analyse:
+		- src/Migrations/*
+#        ignoreErrors:
+#                - '#Call to an undefined method SoapClient::[a-zA-Z0-9_]#'

@@ -32,6 +32,7 @@ RUN echo 'alias phpnx="PHP_INI_SCAN_DIR=/usr/local/etc/conf-noxdebug.d php"' >> 
 
 RUN curl -o /usr/local/bin/php-cs-fixer https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar && chmod a+x /usr/local/bin/php-cs-fixer
 RUN curl -Lo /usr/local/bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod a+x /usr/local/bin/phpmd
+RUN curl -Lo /usr/local/bin/deptrac http://get.sensiolabs.de/deptrac.phar && chmod a+x /usr/local/bin/deptrac
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer &&\
     composer --version

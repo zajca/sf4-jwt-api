@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.3/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+>
+  <php>
+    <ini name="error_reporting" value="-1"/>
+    <env name="SYMFONY_PHPUNIT_VERSION" value="7.3"/>
+    <env name="KERNEL_CLASS" value="App\Kernel"/>
+    <env name="APP_ENV" value="test"/>
+    <env name="APP_DEBUG" value="1"/>
+    <env name="APP_SECRET" value="s$cretf0rt3st"/>
+    <env name="SHELL_VERBOSITY" value="-1"/>
+    <env name="TEMP_DIR" value="/tmp/hosting/nsp.cz/"/>
+    <!--<env name="ES_URL" value="elastic:changeme@es"/>-->
+    <env name="LOCALE" value="cs"/>
+    <!--<env name="NSP_RECEIVE_EMAIL" value="info@nsp.cz"/>-->
+    <!--<env name="NSP_NO_REPLY_EMAIL" value="noreply@nsp.cz"/>-->
+    <env name="DATABASE_URL" value="mysql://root:root@db:3306/jhbackend_test"/>
+    <env name="GA_CODE" value="ga-code"/>
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+    <!-- define your env variables for the test env here -->
+
+    <!-- ###+ knplabs/knp-snappy-bundle ### -->
+    <env name="WKHTMLTOPDF_PATH" value="/usr/local/bin/wkhtmltopdf"/>
+    <env name="WKHTMLTOIMAGE_PATH" value="/usr/local/bin/wkhtmltoimage"/>
+    <!-- ###- knplabs/knp-snappy-bundle ### -->
+    <env name="SYMFONY_PHPUNIT_VERSION" value="6.5"/>
+
+    <!-- ###+ nelmio/cors-bundle ### -->
+    <env name="CORS_ALLOW_ORIGIN" value="^https?://localhost:?[0-9]*$"/>
+    <!-- ###- nelmio/cors-bundle ### -->
+  </php>
+
+  <testsuites>
+    <testsuite name="Project Test Suite">
+      <directory>tests/</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+    <whitelist>
+      <directory>./src/</directory>
+    </whitelist>
+  </filter>
+
+  <listeners>
+    <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+  </listeners>
+</phpunit>

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -12,18 +14,17 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class FormAction
 {
-    
     /**
      * @var FormFactoryInterface
      */
     private $formFactory;
-    
+
     public function __construct(
         FormFactoryInterface $formFactory
     ) {
         $this->formFactory = $formFactory;
     }
-    
+
     /**
      * @Route("/no-api/form", methods={"POST"})
      */
@@ -31,19 +32,19 @@ final class FormAction
     {
         $form = $this->formFactory->create(
             TestForm::class,
-            new TestDTO,
+            new TestDTO(),
             ['method' => 'POST']
         );
-        
+
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TestDTO $dto */
             $dto = $form->getData();
-            
+
             return new View($dto);
         }
-        
+
         return new View($form, Response::HTTP_BAD_REQUEST);
     }
 }

@@ -1,0 +1,70 @@
+image: zajca/php-node:7.2-plain
+
+# Select what we should cache
+cache:
+  paths:
+  #  - vendor/
+  #  - node_modules/
+  - ~/.cache/composer
+
+services:
+- name: mariadb:10.1
+  alias: db
+#- name: zajca/elasticsearch-icu_cz:6.2.3
+#  alias: es
+#
+variables:
+  MYSQL_DATABASE: nsp_test
+  MYSQL_ROOT_PASSWORD: root
+
+before_script:
+#- curl es:9200
+- cp .env_test .env
+# Install composer
+- curl -sS https://getcomposer.org/installer | php
+- curl -o /usr/local/bin/php-cs-fixer https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar && chmod a+x /usr/local/bin/php-cs-fixer
+- curl -Lo /usr/local/bin/phpmd http://static.phpmd.org/php/latest/phpmd.phar && chmod a+x /usr/local/bin/phpmd
+- curl -Lo /usr/local/bin/deptrac http://get.sensiolabs.de/deptrac.phar && chmod a+x /usr/local/bin/deptrac
+- php composer.phar install --no-progress
+
+stages:
+- test
+- build
+- deploy
+
+test:
+  stage: test
+  script:
+  - php bin/console c:c --no-debug
+  - deptrac analyze depfile.yml -v --formatter-graphviz=0
+  - php-cs-fixer fix --dry-run --config=.php_cs.dist --verbose --using-cache=no --path-mode=intersection ./src
+  - php vendor/bin/phpstan analyse -c phpstan.neon src tests --level 6
+  - php bin/console doctrine:database:drop --if-exists --force --no-debug
+  - php bin/console doctrine:database:create --if-not-exists --no-debug
+  - php -d memory_limit=1G -d max_execution_time=0 bin/console jh:fixtures:load --no-debug
+  - SYMFONY_PHPUNIT_VERSION=6.5 php -d memory_limit=-1 -d max_execution_time=0 ./vendor/bin/simple-phpunit
+
+build:
+  stage: build
+  script:
+  - cp .env_prod .env
+  - php composer.phar install --optimize-autoloader --no-scripts
+  - php composer.phar dump-autoload --optimize --no-dev --classmap-authoritative
+  - rm -rf var/cache/*
+#  - ./bump_version.sh bump-info
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}"
+    paths:
+    - bin
+    - config
+    - public
+    - src
+    - templates
+    - translations
+    - var
+    - vendor
+    - composer.json
+    - composer.lock
+    - symfony.lock
+#    - bck_db.sh
+#    - bump_version.sh

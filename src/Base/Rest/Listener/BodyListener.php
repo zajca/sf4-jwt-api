@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Base\Rest\Listener;
 
@@ -11,12 +13,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-
 class BodyListener implements EventSubscriberInterface
 {
-    
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -24,56 +24,57 @@ class BodyListener implements EventSubscriberInterface
             KernelEvents::REQUEST => ['onKernelRequest', 30],
         ];
     }
-    
+
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
-        
+
         $method = $request->getMethod();
+        /** @var string|null $contentType */
         $contentType = $request->headers->get('Content-Type');
-        
+
         if ($this->isDecodeable($request)) {
             $format = null === $contentType
                 ? $request->getRequestFormat()
                 : $request->getFormat($contentType);
-            
+
+            /** @var string $content */
             $content = $request->getContent();
-            
-            if ($format !== 'json') {
+
+            if ('json' !== $format) {
                 if ($this->isNotAnEmptyDeleteRequestWithNoSetContentType($method, $content, $contentType)) {
                     throw new UnsupportedMediaTypeHttpException("Request body format '$format' not supported");
                 }
-                
+
                 return;
             }
-            
+
             if (!empty($content)) {
-                
-                $normalizer = new JsonToFormNormalizer;
+                $normalizer = new JsonToFormNormalizer();
                 $data = $normalizer->normalize($content);
                 if (\is_array($data)) {
                     $request->request = new ParameterBag($data);
                 } else {
-                    throw new BadRequestHttpException('Invalid ' . $format . ' message received');
+                    throw new BadRequestHttpException('Invalid '.$format.' message received');
                 }
             }
         }
     }
-    
+
     /**
      * Check if the Request is not a DELETE with no content and no Content-Type.
      *
-     * @param $method
-     * @param $content
-     * @param $contentType
+     * @param string $method
+     * @param string $content
+     * @param string $contentType
      *
      * @return bool
      */
-    private function isNotAnEmptyDeleteRequestWithNoSetContentType($method, $content, $contentType)
+    private function isNotAnEmptyDeleteRequestWithNoSetContentType($method, $content, $contentType): bool
     {
         return false === ('DELETE' === $method && empty($content) && empty($contentType));
     }
-    
+
     /**
      * Check if we should try to decode the body.
      *
@@ -81,15 +82,15 @@ class BodyListener implements EventSubscriberInterface
      *
      * @return bool
      */
-    protected function isDecodeable(Request $request)
+    protected function isDecodeable(Request $request): bool
     {
-        if (!\in_array($request->getMethod(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        if (!\in_array($request->getMethod(), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
             return false;
         }
-        
+
         return !$this->isFormRequest($request);
     }
-    
+
     /**
      * Check if the content type indicates a form submission.
      *
@@ -97,14 +98,16 @@ class BodyListener implements EventSubscriberInterface
      *
      * @return bool
      */
-    private function isFormRequest(Request $request)
+    private function isFormRequest(Request $request): bool
     {
-        $contentTypeParts = explode(';', $request->headers->get('Content-Type'));
-        
+        /** @var string|null $contentType */
+        $contentType = $request->headers->get('Content-Type');
+        $contentTypeParts = explode(';', $contentType);
+
         if (isset($contentTypeParts[0])) {
-            return in_array($contentTypeParts[0], ['multipart/form-data', 'application/x-www-form-urlencoded']);
+            return \in_array($contentTypeParts[0], ['multipart/form-data', 'application/x-www-form-urlencoded'], true);
         }
-        
+
         return false;
     }
 }

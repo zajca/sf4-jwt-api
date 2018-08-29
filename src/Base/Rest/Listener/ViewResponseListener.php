@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Base\Rest\Listener;
-
 
 use App\Base\Rest\View;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,19 +13,18 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ViewResponseListener implements EventSubscriberInterface
 {
-    
     /**
      * @var SerializerInterface
      */
     private $serializer;
-    
+
     public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }
-    
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -32,7 +32,7 @@ class ViewResponseListener implements EventSubscriberInterface
             KernelEvents::VIEW => ['onKernelView', 30],
         ];
     }
-    
+
     public function onKernelView(GetResponseForControllerResultEvent $event)
     {
         $result = $event->getControllerResult();

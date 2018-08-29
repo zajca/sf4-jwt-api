@@ -11,9 +11,9 @@ use Symfony\Component\Security\Http\Authorization\AccessDeniedHandlerInterface;
 
 class AccessDeniedHandler implements AccessDeniedHandlerInterface
 {
-    
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \InvalidArgumentException
      */
     public function handle(Request $request, AccessDeniedException $accessDeniedException)

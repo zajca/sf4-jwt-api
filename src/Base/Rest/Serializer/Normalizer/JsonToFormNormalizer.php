@@ -1,15 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Base\Rest\Serializer\Normalizer;
 
 /**
  * Stolen from FOSRestBundle
- * Should implement symfony NormalizerInterface but than it would be autoloaded to serializer
+ * Should implement symfony NormalizerInterface but than it would be autoloaded to serializer.
  */
 class JsonToFormNormalizer
 {
-    
     /**
      * Makes data decoded from JSON application/x-www-form-encoded compliant.
      *
@@ -35,14 +35,14 @@ class JsonToFormNormalizer
             }
         }
     }
-    
+
     public function normalize($object)
     {
         $decodedData = @json_decode($object, true);
         if ($decodedData) {
             $this->xWwwFormEncodedLike($decodedData);
         }
-        
+
         return $decodedData;
     }
 }

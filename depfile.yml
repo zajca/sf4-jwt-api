@@ -1,0 +1,24 @@
+paths:
+- ./src
+- ./src/Base
+exclude_files:
+- .*test.*
+layers:
+- name: Controller
+  collectors:
+  - type: directory
+    regex: src/Controller/.*
+- name: Repository
+  collectors:
+  - type: directory
+    regex: src/Repository/.*
+- name: Service
+  collectors:
+  - type: directory
+    regex: src/Service/.*
+ruleset:
+  Controller:
+  - Service
+  Service:
+  - Repository
+  Repository: ~

@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Service;
-
 
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -15,27 +16,26 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class UserAuth
 {
-    
     /**
      * @var JWTEncoderInterface
      */
     private $encoder;
-    
+
     /**
      * @var Client
      */
     private $guzzle;
-    
+
     /**
      * @var UserRepository
      */
     private $userRepository;
-    
+
     /**
      * @var EntityManagerInterface
      */
     private $em;
-    
+
     public function __construct(EntityManagerInterface $em, Client $guzzle, JWTEncoderInterface $encoder, UserRepository $userRepository)
     {
         $this->encoder = $encoder;
@@ -43,21 +43,21 @@ class UserAuth
         $this->userRepository = $userRepository;
         $this->em = $em;
     }
-    
+
     public function checkToken($token): void
     {
         $response = $this->guzzle->get(
             '/api/token_check',
             [
-                RequestOptions::HEADERS     => ['authorization' => 'Bearer ' . $token],
+                RequestOptions::HEADERS => ['authorization' => 'Bearer '.$token],
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new InvalidTokenException;
+            throw new InvalidTokenException();
         }
     }
-    
+
     public function login($credentials): string
     {
         $response = $this->guzzle->post(
@@ -70,34 +70,33 @@ class UserAuth
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
-        
+
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new BadCredentialsException;
+            throw new BadCredentialsException();
         }
         $data = @json_decode((string) $response->getBody(), true);
         if (!\array_key_exists('token', $data)) {
-            throw new BadCredentialsException;
+            throw new BadCredentialsException();
         }
-        
+
         return $data['token'];
-        
     }
-    
+
     public function isTokenRegistered($token): bool
     {
         return null !== $this->userRepository->findByToken($token);
     }
-    
+
     public function getUserEntity($token): User
     {
         $user = $this->userRepository->findByToken($token);
-        if ($user === null) {
+        if (null === $user) {
             $payload = $this->encoder->decode($token);
             $user = User::createFromPayload($token, $payload);
             $this->em->persist($user);
             $this->em->flush();
         }
-        
+
         return $user;
     }
 }

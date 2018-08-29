@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -8,9 +10,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class TestAction
 {
-    
     use UserControllerTrait;
-    
+
     /**
      * @Route("/api/test", methods={"GET"})
      */
